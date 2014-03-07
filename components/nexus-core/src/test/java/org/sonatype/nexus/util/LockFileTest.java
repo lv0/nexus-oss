@@ -26,8 +26,6 @@ import org.sonatype.sisu.litmus.testsupport.TestSupport;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -36,9 +34,6 @@ import static org.junit.Assert.assertThat;
 public class LockFileTest
     extends TestSupport
 {
-
-  private static final Logger log = LoggerFactory.getLogger(LockFileTest.class);
-
   /**
    * Simple test where two locks attempt to lock same file.
    */
@@ -133,7 +128,7 @@ public class LockFileTest
     boolean timelyCompletion = ex.awaitTermination(10L, TimeUnit.SECONDS);
 
     if (!timelyCompletion) {
-      log.error("Test execution timed out.");
+      log("Test execution timed out.");
     }
 
     int totalLocksHappened = 0;
