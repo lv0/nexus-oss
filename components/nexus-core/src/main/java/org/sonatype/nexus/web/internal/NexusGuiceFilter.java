@@ -31,4 +31,9 @@ public final class NexusGuiceFilter
   public NexusGuiceFilter() {
     super(injector.getInstance(DynamicFilterPipeline.class));
   }
+
+  @com.google.inject.Inject
+  NexusGuiceFilter(DynamicFilterPipeline pipeline) {
+    super(pipeline);
+  }
 }

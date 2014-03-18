@@ -11,7 +11,7 @@
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
 
-package org.sonatype.nexus.util;
+package org.sonatype.nexus.bootstrap;
 
 import java.io.File;
 import java.nio.charset.Charset;

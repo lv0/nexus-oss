@@ -11,7 +11,7 @@
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
 
-package org.sonatype.nexus.webapp.metrics;
+package org.sonatype.nexus.web.metrics;
 
 import javax.inject.Named;
 

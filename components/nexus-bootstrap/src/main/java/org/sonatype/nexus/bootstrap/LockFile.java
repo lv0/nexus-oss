@@ -11,7 +11,7 @@
  * Eclipse Foundation. All other trademarks are the property of their respective owners.
  */
 
-package org.sonatype.nexus.util;
+package org.sonatype.nexus.bootstrap;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,11 +22,8 @@ import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.Charset;
 
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * File locker implementation, inspired by Eclipse Locker. It uses Java NIO {@link FileChannel#tryLock(long, long,
@@ -63,8 +60,11 @@ public class LockFile
    * Creates a LockFile with custom payload.
    */
   public LockFile(final File lockFile, final byte[] payload) {
-    this.lockFile = checkNotNull(lockFile);
-    this.payload = checkNotNull(payload);
+    if (lockFile == null || payload == null) {
+      throw new NullPointerException();
+    }
+    this.lockFile = lockFile;
+    this.payload = payload;
   }
 
   /**
@@ -127,7 +127,9 @@ public class LockFile
    * obtained. Package-scoped as this is only used by tests.
    */
   byte[] readBytes() throws IOException {
-    Preconditions.checkState(randomAccessFile != null, "No lock obtained, cannot read file contents.");
+    if (randomAccessFile == null) {
+      throw new IllegalStateException("No lock obtained, cannot read file contents.");
+    }
 
     byte[] buffer = new byte[(int) randomAccessFile.length()];
     randomAccessFile.seek(0);
@@ -137,7 +139,7 @@ public class LockFile
 
   // ==
 
-  private void close(AutoCloseable closeable) {
+  private static void close(AutoCloseable closeable) {
     if (closeable != null) {
       try {
         closeable.close();

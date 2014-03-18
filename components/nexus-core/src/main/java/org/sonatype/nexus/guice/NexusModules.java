@@ -25,6 +25,7 @@ import org.sonatype.nexus.web.internal.BaseUrlHolderFilter;
 import org.sonatype.nexus.web.internal.CommonHeadersFilter;
 import org.sonatype.nexus.web.internal.ErrorPageFilter;
 import org.sonatype.nexus.web.internal.ErrorPageServlet;
+import org.sonatype.nexus.web.metrics.MetricsModule;
 import org.sonatype.security.SecuritySystem;
 import org.sonatype.security.web.guice.SecurityWebModule;
 
@@ -72,11 +73,11 @@ public class NexusModules
   {
     private final ServletContext servletContext;
 
-    private final Map<String, String> properties;
+    private final Map<?, ?> properties;
 
     private final Bundle systemBundle;
 
-    public CoreModule(final ServletContext servletContext, final Map<String, String> properties, final Bundle systemBundle) {
+    public CoreModule(final ServletContext servletContext, final Map<?, ?> properties, final Bundle systemBundle) {
       this.servletContext = checkNotNull(servletContext);
       this.properties = checkNotNull(properties);
       this.systemBundle = checkNotNull(systemBundle);
@@ -89,6 +90,7 @@ public class NexusModules
       bind(ParameterKeys.PROPERTIES).toInstance(properties);
       bind(Bundle.class).toInstance(systemBundle);
 
+      install(new MetricsModule());
       install(new CommonModule());
 
       install(new ServletModule()
