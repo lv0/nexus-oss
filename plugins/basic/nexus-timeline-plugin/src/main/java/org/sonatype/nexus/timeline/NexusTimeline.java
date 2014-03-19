@@ -16,7 +16,6 @@ package org.sonatype.nexus.timeline;
 import java.util.Map;
 import java.util.Set;
 
-import org.sonatype.nexus.timeline.internal.EntryRecord;
 import org.sonatype.sisu.goodies.lifecycle.Lifecycle;
 
 import com.google.common.base.Predicate;
@@ -45,7 +44,7 @@ public interface NexusTimeline
    * @param records the records to append.
    * @since 3.0
    */
-  void add(final EntryRecord... records);
+  void add(final Entry... records);
 
   /**
    * Retrieves the timeline records that are timestamped in between of fromTs, in descending order (newest 1st,

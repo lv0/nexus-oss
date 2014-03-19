@@ -14,6 +14,9 @@
 package org.sonatype.nexus.timeline.internal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,16 +24,17 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.sonatype.nexus.proxy.events.NexusInitializedEvent;
+import org.sonatype.nexus.proxy.events.NexusStoppedEvent;
 import org.sonatype.nexus.timeline.Entry;
 import org.sonatype.nexus.timeline.NexusTimeline;
 import org.sonatype.nexus.timeline.TimelineCallback;
 import org.sonatype.nexus.timeline.TimelinePlugin;
-import org.sonatype.nexus.proxy.events.NexusInitializedEvent;
-import org.sonatype.nexus.proxy.events.NexusStoppedEvent;
 import org.sonatype.sisu.goodies.eventbus.EventBus;
 import org.sonatype.sisu.goodies.lifecycle.LifecycleSupport;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import io.kazuki.v0.store.KazukiException;
 import io.kazuki.v0.store.journal.JournalStore;
@@ -135,14 +139,34 @@ public class DefaultNexusTimeline
 
   @Override
   public void add(long timestamp, String type, String subType, Map<String, String> data) {
-    add(new EntryRecord(timestamp, type, subType, data));
-  }
-
-  @Override
-  public void add(final EntryRecord... records) {
     if (!isStarted()) {
       return;
     }
+    addEntryRecord(Collections.singletonList(new EntryRecord(timestamp, type, subType, data)));
+  }
+
+  @Override
+  public void add(final Entry... records) {
+    if (!isStarted()) {
+      return;
+    }
+    final ArrayList<EntryRecord> entries = Lists.newArrayListWithCapacity(records.length);
+    for (Entry record : records) {
+      if (record instanceof EntryRecord) {
+        entries.add((EntryRecord) record);
+      }
+      else {
+        entries.add(new EntryRecord(
+            record.getTimestamp(),
+            record.getType(),
+            record.getSubType(),
+            record.getData()));
+      }
+    }
+    addEntryRecord(entries);
+  }
+
+  private void addEntryRecord(final List<EntryRecord> records) {
     try {
       for (EntryRecord record : records) {
         journalStore.append(EntryRecord.SCHEMA_NAME, EntryRecord.class, record, TypeValidation.STRICT);
@@ -169,7 +193,8 @@ public class DefaultNexusTimeline
       // We do manual filtering here, so not passing in limit and limiting manually
       int currentCount = 0;
       try (final KeyValueIterable<KeyValuePair<EntryRecord>> kvs = journalStore
-          .entriesRelative(EntryRecord.SCHEMA_NAME, EntryRecord.class, SortDirection.DESCENDING, (long) fromItem, null)) {
+          .entriesRelative(EntryRecord.SCHEMA_NAME, EntryRecord.class, SortDirection.DESCENDING, (long) fromItem,
+              null)) {
         for (KeyValuePair<EntryRecord> kv : kvs) {
           final EntryRecord record = kv.getValue();
           if (types != null && !types.contains(record.getType())) {
