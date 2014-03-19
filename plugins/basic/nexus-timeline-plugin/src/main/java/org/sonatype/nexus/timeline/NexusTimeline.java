@@ -16,6 +16,7 @@ package org.sonatype.nexus.timeline;
 import java.util.Map;
 import java.util.Set;
 
+import org.sonatype.nexus.timeline.internal.EntryRecord;
 import org.sonatype.sisu.goodies.lifecycle.Lifecycle;
 
 import com.google.common.base.Predicate;
@@ -29,7 +30,7 @@ public interface NexusTimeline
     extends Lifecycle
 {
   /**
-   * Appends a single record to the timeline.
+   * Appends a single record to the Timeline.
    *
    * @param timestamp the timestamp of record. Used for ordering.
    * @param type      the type of record. Used for retrieval. Cannot be null.
@@ -37,6 +38,14 @@ public interface NexusTimeline
    * @param data      the map of "data". Cannot be null.
    */
   void add(long timestamp, String type, String subType, Map<String, String> data);
+
+  /**
+   * Appends records to the Timeline (in order as they are passed in).
+   *
+   * @param records the records to append.
+   * @since 3.0
+   */
+  void add(final EntryRecord... records);
 
   /**
    * Retrieves the timeline records that are timestamped in between of fromTs, in descending order (newest 1st,

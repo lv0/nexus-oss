@@ -134,11 +134,11 @@ public class DefaultNexusTimeline
   // API
 
   @Override
-  @Deprecated
   public void add(long timestamp, String type, String subType, Map<String, String> data) {
     add(new EntryRecord(timestamp, type, subType, data));
   }
 
+  @Override
   public void add(final EntryRecord... records) {
     if (!isStarted()) {
       return;
